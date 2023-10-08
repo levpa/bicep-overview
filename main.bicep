@@ -30,6 +30,8 @@ var storageAccountProperties = {
   supportsHttpsTrafficOnly: supportHttpsTraffic
 }
 
+
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   tags: tags
@@ -51,6 +53,9 @@ resource auditStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: storageAccountKind
   properties: storageAccountProperties
 }
+
+// extract keys from objects
+var storageAccountKey = storageAccount.listKeys().keys[0]
 
 output storageAccountName string = storageAccount.name
 output auditStorageAccountName string = auditStorageAccount.name

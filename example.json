@@ -1,0 +1,16 @@
+{
+    "storageAccounts": [
+        {
+            "name": "standardName",
+            "sku": "Standard_LRS"
+        },
+        {
+            "name": "secondName",
+            "sku": "Standard_LRS"
+        },
+        {
+            "name": "thirdName",
+            "sku": "Standard_LRS"
+        }
+    ]
+}

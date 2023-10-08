@@ -3,11 +3,6 @@ var supportHttpsTrafficOnly = true
 
 var myFirstInteger = 10
 
-var myArray = [
-  'myFirstString'
-  'mySecondString'
-]
-
 var myFirstObject = {
   myFirstKey: 'myFirstValue'
   mySecondKey: 100
@@ -23,3 +18,47 @@ var nestedObjects = {
     }
   }
 }
+
+// string
+var myFirstString = 'mystring${storageAccountName}'
+var lowerCase = toLower(myFirstString)
+var upperCase = toUpper(myFirstString)
+var trimmed = trim(' spaces ')
+var sub = substring(trimmed, 0, 2)
+
+// data conversions
+var myBool = bool('true')
+var myInteger = int('10')
+var myString = string(10)
+
+// arrays
+
+var myArray = [
+  'mystring'
+  'myotherstring'
+]
+
+var mySecondArray = [
+  'mystring'
+  'myotherstring'
+]
+
+var firstElement = first(myArray)
+var arrayContains = contains(myArray, 'mystring')
+var isArrayEmpty = empty(myArray)
+
+var splitString = split('header1, header2, header3', ',')
+
+var combinedArray = concat(myArray, mySecondArray)
+var unionArray = union(myArray, mySecondArray)
+
+// scope functions
+var resourceGroupName = resourceGroup().name
+var subscriptionId = subscription().id
+
+// loading files
+var loadedJson = loadJsonContent('example.json')
+var jsonContent = loadedJson.storageAccounts[0].name
+
+var loadedYaml = loadYamlContent('example.yml')
+var yamlContent = loadedYaml.name
