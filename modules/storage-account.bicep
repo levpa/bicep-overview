@@ -19,6 +19,9 @@ param storageAccountSku string
 @description('Support HTTPs traffic only')
 param supoprtsHttpsTrafficOnly bool = true
 
+@description('Names of the containers to deploy')
+param containerNames array = []
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   tags: tags
@@ -32,6 +35,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     supportsHttpsTrafficOnly: supoprtsHttpsTrafficOnly
   }
 }
+
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+    name: 'default'
+    parent: storageAccount
+}
+
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = [for containerName in containerNames: {
+    name: containerName
+    parent: blobServices
+    properties: {
+      publicAccess: 'None'
+    }
+}]
 
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id
