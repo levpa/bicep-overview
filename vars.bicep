@@ -19,6 +19,10 @@ var nestedObjects = {
   }
 }
 
+@maxLength(24)
+@description('Name of the storage account')
+param storageAccountName string
+
 // string
 var myFirstString = 'mystring${storageAccountName}'
 var lowerCase = toLower(myFirstString)
@@ -62,6 +66,10 @@ var jsonContent = loadedJson.storageAccounts[0].name
 
 var loadedYaml = loadYamlContent('example.yml')
 var yamlContent = loadedYaml.name
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: storageAccountName
+}
 
 // extract keys from objects
 var storageAccountKey = storageAccount.listKeys().keys[0]
