@@ -20,45 +20,28 @@ param auditStorageAccountName string
 @description('Name of the storage account sku')
 param storageAccountSku string
 
-var storageAccountKind = 'StorageV2'
-
-@description('Support HTTPS traffic only')
-param supportHttpsTraffic bool = true
-
-var storageAccountProperties = {
-  minimumTlsVersion: 'TLS1_2'
-  supportsHttpsTrafficOnly: supportHttpsTraffic
-}
-
-
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
-  tags: tags
-  location: location
-  sku: {
-    name: storageAccountSku
+module storageAccount 'modules/storage-account.bicep' = {
+  name: 'deploy-${storageAccountName}'
+  params: {
+    location: location
+    tags: tags
+    storageAccountName: storageAccountName
+    storageAccountSku: storageAccountSku
   }
-  kind: storageAccountKind
-  properties: storageAccountProperties
 }
 
-resource auditStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: auditStorageAccountName
-  tags: tags
-  location: location
-  sku: {
-    name: storageAccountSku
+module auditStorageAccount 'modules/storage-account.bicep' = {
+  name: 'deploy-${auditStorageAccountName}'
+  params: {
+    location: location
+    tags: tags
+    storageAccountName: auditStorageAccountName
+    storageAccountSku: storageAccountSku
   }
-  kind: storageAccountKind
-  properties: storageAccountProperties
 }
 
-// extract keys from objects
-var storageAccountKey = storageAccount.listKeys().keys[0]
+output storageAccountName string = storageAccount.outputs.storageAccountName
+output auditStorageAccountName string = auditStorageAccount.outputs.storageAccountName
 
-output storageAccountName string = storageAccount.name
-output auditStorageAccountName string = auditStorageAccount.name
-
-output storageAccountId string = storageAccount.id
-output auditStorageAccountId string = auditStorageAccount.id
+output storageAccountId string = storageAccount.outputs.storageAccountId
+output auditStorageAccountId string = auditStorageAccount.outputs.storageAccountId

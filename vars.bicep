@@ -62,3 +62,17 @@ var jsonContent = loadedJson.storageAccounts[0].name
 
 var loadedYaml = loadYamlContent('example.yml')
 var yamlContent = loadedYaml.name
+
+// extract keys from objects
+var storageAccountKey = storageAccount.listKeys().keys[0]
+
+var storageAccountKind = 'StorageV2'
+
+@description('Support HTTPS traffic only')
+param supportHttpsTraffic bool = true
+
+// object variables
+var storageAccountProperties = {
+  minimumTlsVersion: 'TLS1_2'
+  supportsHttpsTrafficOnly: supportHttpsTraffic
+}

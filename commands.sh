@@ -5,5 +5,5 @@ az deployment group create \
     --resource-group levs-test-rg \
     --mode Incremental \
     --template-file main.bicep \
-    --parameters main.bicepparam \
+    --parameters main.bicepparam
     # --what-if
