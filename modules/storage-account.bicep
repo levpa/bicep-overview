@@ -41,13 +41,14 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01
     parent: storageAccount
 }
 
-resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = [for containerName in containerNames: {
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = [ 
+  for containerName in containerNames: {
     name: containerName
     parent: blobServices
     properties: {
       publicAccess: 'None'
-    }
-}]
+    }}
+  ]
 
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id
