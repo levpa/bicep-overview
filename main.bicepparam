@@ -1,7 +1,7 @@
 using './main.bicep'
 
-param storageAccountName = 'levsbicepstacc'
-param auditStorageAccountName = 'levsauditstacc'
+param storageAccountName = 'levssecstorageacc'
+param auditStorageAccountName = 'levsthirdstorageacc'
 param storageAccountSku = 'Standard_LRS'
 
 param tags = {
