@@ -13,6 +13,12 @@ param storageAccountName string
 @description('Name of the audit account')
 param auditStorageAccountName string
 
+@description('Deploy audit storage account option')
+param deployAuditStorageAccount bool = true
+
+@description('Deploy audit storage account option')
+param deployAuditStorageAccountContainer bool = true
+
 @allowed([
   'Standard_LRS'
   'Standard_GRS'
@@ -35,35 +41,39 @@ var auditStorageAccountContainers = [
   'logs'
 ]
 
-module auditStorageAccount 'modules/storage-account.bicep' = {
+module auditStorageAccount 'modules/storage-account.bicep' = if (deployAuditStorageAccount) {
   name: 'deploy-${auditStorageAccountName}'
   params: {
     location: location
     tags: tags
     storageAccountName: auditStorageAccountName
     storageAccountSku: storageAccountSku
-    containerNames: auditStorageAccountContainers
+    containerNames: deployAuditStorageAccountContainer ? auditStorageAccountContainers : []
   }
 }
 
+var storageAccountNames = deployAuditStorageAccount ? [
+        storageAccount.outputs.storageAccountName
+        auditStorageAccount.outputs.storageAccountName
+      ]:[
+        storageAccount.outputs.storageAccountName
+      ]
+
 // var storageBlobDataReaderId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
+
 // module roleAssignments 'modules/storage-account-role-assignments.bicep' = {
 //   name: 'deploy-role-assignments'
 //   params: {
 //     adGroupId: '3b83321f-7bea-4370-8e8f-501f15e7940c'
 //     roleAssignmentId: storageBlobDataReaderId
-//     storageAccountNames: [
-      // implicit dependency, can be checked at bicep visualizer
-  //     storageAccount.outputs.storageAccountName
-  //     auditStorageAccount.outputs.storageAccountName
-  //   ]
-  // }
-  // explicit dependency ( not recommended! )
-  // dependsOn: [
-  //   storageAccount
-  //   auditStorageAccount
-  // ]
+//     storageAccountNames: storageAccountNames
+//   }
+//   // dependsOn: [
+//   //   storageAccount
+//   //   auditStorageAccount
+//   // ]
 // }
+
 output storageAccountName string = storageAccount.outputs.storageAccountName
 output auditStorageAccountName string = auditStorageAccount.outputs.storageAccountName
 

@@ -36,7 +36,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = if(!(empty(containerNames))) {
     name: 'default'
     parent: storageAccount
 }
