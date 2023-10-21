@@ -1,6 +1,6 @@
 
 @description('Location of the resources')
-param location string = 'westeurope'
+param location string = resourceGroup().location
 
 @description('Tags for the resources')
 param tags object = {}
@@ -26,6 +26,24 @@ param deployAuditStorageAccountContainer bool = true
 @description('Name of the storage account sku')
 param storageAccountSku string
 
+@secure()
+param mySecret string
+
+var blobEndpoint = storageAccount.outputs.blobEndpoint
+// @maxLength(10)
+// @description('The short name of the storage account')
+// param storageAccountShortName string
+
+// @allowed([
+//   'dev'
+//   'uat'
+//   'prd'
+// ])
+// @description('The environment of the deployment')
+// param environment string
+
+// var myResourceName = '${storageAccountShortName}-${environment}-${uniqueString(resourceGroup().id)}'
+
 module storageAccount 'modules/storage-account.bicep' = {
   name: 'deploy-${storageAccountName}'
   params: {
@@ -40,7 +58,7 @@ var auditStorageAccountContainers = [
   'data'
   'logs'
 ]
-
+// account for audit logs
 module auditStorageAccount 'modules/storage-account.bicep' = if (deployAuditStorageAccount) {
   name: 'deploy-${auditStorageAccountName}'
   params: {
