@@ -59,20 +59,16 @@ var storageAccountNames = deployAuditStorageAccount ? [
         storageAccount.outputs.storageAccountName
       ]
 
-// var storageBlobDataReaderId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
+var storageBlobDataReaderId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
 
-// module roleAssignments 'modules/storage-account-role-assignments.bicep' = {
-//   name: 'deploy-role-assignments'
-//   params: {
-//     adGroupId: '3b83321f-7bea-4370-8e8f-501f15e7940c'
-//     roleAssignmentId: storageBlobDataReaderId
-//     storageAccountNames: storageAccountNames
-//   }
-//   // dependsOn: [
-//   //   storageAccount
-//   //   auditStorageAccount
-//   // ]
-// }
+module roleAssignments 'modules/storage-account-role-assignments.bicep' = {
+  name: 'deploy-role-assignments'
+  params: {
+    adGroupId: '02a910dd-b396-479a-ae3d-2605f5884901'
+    roleAssignmentId: storageBlobDataReaderId
+    storageAccountNames: storageAccountNames
+  }
+}
 
 output storageAccountName string = storageAccount.outputs.storageAccountName
 output auditStorageAccountName string = auditStorageAccount.outputs.storageAccountName
