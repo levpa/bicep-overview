@@ -7,8 +7,8 @@ variables:
   azureServiceConnection: 'avenga-sc'
   resourceGroupName: 'levs-resources'
   location: 'westeurope'
-  templateFile: 'main.bicep'
-  paramFile: 'mai0n.bicepparam'
+  templateFile: 'overview/main.bicep'
+  paramFile: 'overview/main.bicepparam'
 
 pool:
   vmImage: 'ubuntu-latest'

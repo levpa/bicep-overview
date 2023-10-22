@@ -11,6 +11,9 @@
         "storageAccountName": {
             "value": "stbicepcoursedev"
         },
+        "sftpStorageAccountName": {
+            "value": "stbicepcoursedev"
+        },
         "storageAccountSku": {
             "value": "Standard_LRS"
         },
