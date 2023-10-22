@@ -1,0 +1,817 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.22.6.54827",
+      "templateHash": "6696342916423414468"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the resources"
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags for all resources"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "The name of the storage account"
+      }
+    },
+    "sftpStorageAccountName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "The name of the SFTP storage account"
+      }
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the application insights resource"
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the app service plan resource"
+      }
+    },
+    "functionAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of our function app resource"
+      }
+    },
+    "storageAccountSku": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_GRS",
+        "Standard_LRS"
+      ],
+      "metadata": {
+        "description": "Name of the SKU"
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "S1",
+        "B1"
+      ]
+    },
+    "apiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "API key for our really interesting API"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-{0}', parameters('storageAccountName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "storageAccountSku": {
+            "value": "[parameters('storageAccountSku')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.22.6.54827",
+              "templateHash": "5654399869685035427"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for the resources"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags for all resources"
+              }
+            },
+            "storageAccountName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 24,
+              "metadata": {
+                "description": "The name of the storage account"
+              }
+            },
+            "storageAccountSku": {
+              "type": "string",
+              "defaultValue": "Standard_LRS",
+              "allowedValues": [
+                "Standard_GRS",
+                "Standard_LRS"
+              ],
+              "metadata": {
+                "description": "Name of the SKU"
+              }
+            },
+            "storageAccountKind": {
+              "type": "string",
+              "defaultValue": "StorageV2",
+              "allowedValues": [
+                "BlobStorage",
+                "StorageV2"
+              ],
+              "metadata": {
+                "description": "The type of storage account"
+              }
+            },
+            "isSftpEnabled": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Set storage account SFTP enabled"
+              }
+            },
+            "containerNames": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "The names of containers for creation"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-01-01",
+              "name": "[parameters('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "[parameters('storageAccountSku')]"
+              },
+              "kind": "[parameters('storageAccountKind')]",
+              "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "supportsHttpsTrafficOnly": true,
+                "isSftpEnabled": "[parameters('isSftpEnabled')]",
+                "isHnsEnabled": "[if(parameters('isSftpEnabled'), true(), false())]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('containerNames')))]",
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "containers",
+                "count": "[length(parameters('containerNames'))]"
+              },
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', parameters('containerNames')[copyIndex()])]",
+              "properties": {
+                "publicAccess": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "storageAccountName": {
+              "type": "string",
+              "value": "[parameters('storageAccountName')]"
+            },
+            "storageAccountId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-{0}', parameters('sftpStorageAccountName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('sftpStorageAccountName')]"
+          },
+          "storageAccountSku": {
+            "value": "[parameters('storageAccountSku')]"
+          },
+          "isSftpEnabled": {
+            "value": true
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.22.6.54827",
+              "templateHash": "5654399869685035427"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for the resources"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags for all resources"
+              }
+            },
+            "storageAccountName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 24,
+              "metadata": {
+                "description": "The name of the storage account"
+              }
+            },
+            "storageAccountSku": {
+              "type": "string",
+              "defaultValue": "Standard_LRS",
+              "allowedValues": [
+                "Standard_GRS",
+                "Standard_LRS"
+              ],
+              "metadata": {
+                "description": "Name of the SKU"
+              }
+            },
+            "storageAccountKind": {
+              "type": "string",
+              "defaultValue": "StorageV2",
+              "allowedValues": [
+                "BlobStorage",
+                "StorageV2"
+              ],
+              "metadata": {
+                "description": "The type of storage account"
+              }
+            },
+            "isSftpEnabled": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Set storage account SFTP enabled"
+              }
+            },
+            "containerNames": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "The names of containers for creation"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-01-01",
+              "name": "[parameters('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "[parameters('storageAccountSku')]"
+              },
+              "kind": "[parameters('storageAccountKind')]",
+              "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "supportsHttpsTrafficOnly": true,
+                "isSftpEnabled": "[parameters('isSftpEnabled')]",
+                "isHnsEnabled": "[if(parameters('isSftpEnabled'), true(), false())]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('containerNames')))]",
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "containers",
+                "count": "[length(parameters('containerNames'))]"
+              },
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', parameters('containerNames')[copyIndex()])]",
+              "properties": {
+                "publicAccess": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "storageAccountName": {
+              "type": "string",
+              "value": "[parameters('storageAccountName')]"
+            },
+            "storageAccountId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-{0}', parameters('applicationInsightsName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "applicationInsightsName": {
+            "value": "[parameters('applicationInsightsName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.22.6.54827",
+              "templateHash": "3274317698200763930"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for the resources"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags for all resources"
+              }
+            },
+            "applicationInsightsName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the application insights resource"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02",
+              "name": "[parameters('applicationInsightsName')]",
+              "tags": "[parameters('tags')]",
+              "location": "[parameters('location')]",
+              "kind": "web",
+              "properties": {
+                "Application_Type": "web",
+                "Request_Source": "rest"
+              }
+            }
+          ],
+          "outputs": {
+            "applicationInsightsName": {
+              "type": "string",
+              "value": "[parameters('applicationInsightsName')]"
+            },
+            "applicationInsightsId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "deploy-compute",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "apiKey": {
+            "value": "[parameters('apiKey')]"
+          },
+          "applicationInsightsName": {
+            "value": "[parameters('applicationInsightsName')]"
+          },
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "functionAppName": {
+            "value": "[parameters('functionAppName')]"
+          },
+          "appServicePlanSku": {
+            "value": "[parameters('appServicePlanSku')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.22.6.54827",
+              "templateHash": "18036689079498484163"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for the resources"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags for all resources"
+              }
+            },
+            "storageAccountName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 24,
+              "metadata": {
+                "description": "The name of the storage account"
+              }
+            },
+            "functionAppName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of our function app resource"
+              }
+            },
+            "appServicePlanName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the app service plan resource"
+              }
+            },
+            "applicationInsightsName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the application insights resource"
+              }
+            },
+            "appServicePlanSku": {
+              "type": "string",
+              "allowedValues": [
+                "S1",
+                "B1"
+              ]
+            },
+            "apiKey": {
+              "type": "securestring",
+              "metadata": {
+                "description": "API key for our really interesting API"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-{0}', parameters('appServicePlanName'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "appServicePlanName": {
+                    "value": "[parameters('appServicePlanName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "appServicePlanSku": {
+                    "value": "[parameters('appServicePlanSku')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.22.6.54827",
+                      "templateHash": "6743613210824010303"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for the resources"
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Tags for all resources"
+                      }
+                    },
+                    "appServicePlanName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the app service plan resource"
+                      }
+                    },
+                    "appServicePlanSku": {
+                      "type": "string",
+                      "defaultValue": "B1",
+                      "allowedValues": [
+                        "S1",
+                        "B1"
+                      ]
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Web/serverfarms",
+                      "apiVersion": "2022-09-01",
+                      "name": "[parameters('appServicePlanName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "sku": {
+                        "name": "[parameters('appServicePlanSku')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "appServicePlanName": {
+                      "type": "string",
+                      "value": "[parameters('appServicePlanName')]"
+                    },
+                    "appServicePlanId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-{0}', parameters('functionAppName'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "appServicePlanName": {
+                    "value": "[parameters('appServicePlanName')]"
+                  },
+                  "appSettings": {
+                    "value": [
+                      {
+                        "name": "ApiKey",
+                        "value": "[parameters('apiKey')]"
+                      }
+                    ]
+                  },
+                  "applicationInsightsName": {
+                    "value": "[parameters('applicationInsightsName')]"
+                  },
+                  "functionAppName": {
+                    "value": "[parameters('functionAppName')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[parameters('storageAccountName')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.22.6.54827",
+                      "templateHash": "6360851598326482696"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for the resources"
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Tags for all resources"
+                      }
+                    },
+                    "functionAppName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of our function app resource"
+                      }
+                    },
+                    "appServicePlanName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the app service plan resource"
+                      }
+                    },
+                    "storageAccountName": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 24,
+                      "metadata": {
+                        "description": "The name of the storage account"
+                      }
+                    },
+                    "applicationInsightsName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the application insights resource"
+                      }
+                    },
+                    "appSettings": {
+                      "type": "array",
+                      "metadata": {
+                        "description": "App settings for the function app"
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Web/sites",
+                      "apiVersion": "2022-09-01",
+                      "name": "[parameters('functionAppName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "kind": "functionapp",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+                        "httpsOnly": true,
+                        "siteConfig": {
+                          "windowsFxVersion": "DOTNETCORE|LTS",
+                          "alwaysOn": true,
+                          "appSettings": "[union(parameters('appSettings'), createArray(createObject('name', 'AzureWebJobsStorage', 'value', format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-01-01').keys[0].value)), createObject('name', 'APPINSIGHTS_INSTRUMENTATIONKEY', 'value', reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2020-02-02').InstrumentationKey), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2020-02-02').ConnectionString), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'dotnet')))]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "functionAppName": {
+                      "type": "string",
+                      "value": "[parameters('functionAppName')]"
+                    },
+                    "functionAppId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "appServicePlanName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('appServicePlanName'))), '2022-09-01').outputs.appServicePlanName.value]"
+            },
+            "appServicePlanId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('appServicePlanName'))), '2022-09-01').outputs.appServicePlanId.value]"
+            },
+            "functionAppName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('functionAppName'))), '2022-09-01').outputs.functionAppName.value]"
+            },
+            "functionAppId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('functionAppName'))), '2022-09-01').outputs.functionAppId.value]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('storageAccountName'))), '2022-09-01').outputs.storageAccountName.value]"
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-{0}', parameters('applicationInsightsName'))), '2022-09-01').outputs.applicationInsightsName.value]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-compute'), '2022-09-01').outputs.appServicePlanName.value]"
+    },
+    "functionAppName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-compute'), '2022-09-01').outputs.functionAppName.value]"
+    }
+  }
+}

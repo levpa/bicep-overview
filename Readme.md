@@ -10,7 +10,7 @@ az bicep decompile --file main.json
 
 ### Azure auth
 
-```bash 
+```bash
 # set proper Azure subscription
 az account list --output table
 az account set --subscription <subscription_id>
@@ -25,11 +25,21 @@ az account show
 ```bash
 # az cli
 az group create --location westeurope --name levs-test-rg
-# pwsh
-New-AzResourceGroup -Location westeurope -Name levs-test-rg
 ```
 
-### Create deployment
+### Template test
+
+[Best practices test toolkit for ARM templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/test-toolkit)
+
+```sh
+Test-AzTemplate -TemplatePath main.json
+```
+
+### Template validation on Azure
+
+`See validation task in:` function-app/function.yml
+
+### Create and run deployment with Azure CLI
 
 ```bash
 # deployment with Azure CLI

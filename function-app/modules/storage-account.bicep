@@ -32,7 +32,7 @@ param isSftpEnabled bool = false
 param containerNames array = []
 
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
   tags: tags
@@ -48,12 +48,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-02-01' = if(!empty(containerNames)) {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = if(!empty(containerNames)) {
   name: 'default'
   parent: storageAccount
 }
 
-resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = [ for containerName in containerNames : {
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = [ for containerName in containerNames : {
   name: containerName
   parent: blobServices
   properties: {
