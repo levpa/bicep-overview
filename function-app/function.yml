@@ -1,0 +1,40 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  serviceConnection: avenga-sc
+  subscriptionId: 597ba493-6e09-4dbe-8958-3408f0e3e834
+  resourceGroup: levs-bicep-resources
+  location: westeurope
+
+jobs:
+  - job: validate
+    displayName: Validate infra
+    steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: validate bicep template
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: $(serviceConnection)
+          subscriptionId: $(subscriptionId)
+          resourceGroupName: $(resourceGroup)
+          location: $(location)
+          csmFile: main.bicep
+          deploymentMode: Validation
+
+  - job: deploy
+    displayName: Deploy infra
+    dependsOn: validate
+    steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: deploy bicep template
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: $(serviceConnection)
+          subscriptionId: $(subscriptionId)
+          resourceGroupName: $(resourceGroup)
+          location: $(location)
+          csmFile: main.bicep

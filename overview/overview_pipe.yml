@@ -1,16 +1,16 @@
 trigger:
   - main
   
-name: Deploy Bicep $(Date:yyyyMMdd)_$(Rev:.r)
+name: Deploy Bicep with Az CLI $(Date:yyyyMMdd)_$(Rev:.r)
   
 variables:
   azureServiceConnection: 'avenga-sc'
   resourceGroupName: 'levs-resources'
   location: 'westeurope'
   templateFile: 'main.bicep'
+  paramFile: main.bicepparam
 
 pool:
-  name: 'Azure Pipelines'
   vmImage: 'ubuntu-latest'
 
 steps:
@@ -19,13 +19,13 @@ steps:
       azureSubscription: $(azureServiceConnection)
       scriptType: bash
       scriptLocation: inlineScript
-      useGlobalConfig: false
       inlineScript: |
         az --version
+
         az group create --name $(resourceGroupName) --location $(location)
+        az group show --name $(resourceGroupName)
 
         az deployment group create --resource-group $(resourceGroupName) \
                                     --template-file $(templateFile) \
-                                    --name LevsDeployment \
-                                    --parameters main.bicepparam \
-    displayName: bicep deployment
+                                    --parameters $(paramFile)
+    displayName: bicep az cli deployment
