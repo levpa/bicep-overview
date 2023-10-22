@@ -5,11 +5,11 @@
         "tags": {
             "value": {
                 "environment": "dev",
-                "owner": "Dylan Budgen"
+                "owner": "Lev Pasichnyi"
             }
         },
         "storageAccountName": {
-            "value": "stbicepcoursedev"
+            "value": "levsstoragebicepname"
         },
         "sftpStorageAccountName": {
             "value": "levssftpaccname"
@@ -18,19 +18,19 @@
             "value": "Standard_LRS"
         },
         "appServicePlanName": {
-            "value": "app-bicep-course-dev"
+            "value": "app-bicep-levs-dev"
         },
         "appServicePlanSku": {
             "value": "B1"
         },
         "functionAppName": {
-            "value": "func-bicep-course-dev"
+            "value": "func-bicep-levs-dev"
         },
         "applicationInsightsName": {
-            "value": "appi-bicep-course-dev"
+            "value": "appi-bicep-levs-dev"
         },
         "apiKey": {
-            "value": "secret-value"
+            "value": "sec-value_2089437290u48572-04989020394-8-20384972109"
         }
     }
 }
