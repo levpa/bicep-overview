@@ -12,7 +12,7 @@
             "value": "stbicepcoursedev"
         },
         "sftpStorageAccountName": {
-            "value": "stbicepcoursedev"
+            "value": "levssftpaccname"
         },
         "storageAccountSku": {
             "value": "Standard_LRS"
