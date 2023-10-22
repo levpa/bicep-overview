@@ -9,6 +9,7 @@ variables:
   subscriptionId: 597ba493-6e09-4dbe-8958-3408f0e3e834
   resourceGroup: levs-bicep-resources
   location: westeurope
+  templatePath: function-app/main.bicep
 
 jobs:
   - job: validate
@@ -22,7 +23,7 @@ jobs:
           subscriptionId: $(subscriptionId)
           resourceGroupName: $(resourceGroup)
           location: $(location)
-          csmFile: main.bicep
+          csmFile: $(templatePath)
           deploymentMode: Validation
 
   - job: deploy
@@ -37,4 +38,4 @@ jobs:
           subscriptionId: $(subscriptionId)
           resourceGroupName: $(resourceGroup)
           location: $(location)
-          csmFile: main.bicep
+          csmFile: $(templatePath)
