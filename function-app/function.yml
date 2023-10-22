@@ -10,6 +10,7 @@ variables:
   resourceGroup: levs-bicep-resources
   location: westeurope
   templatePath: function-app/main.bicep
+  parametersPath: function-app/main.parameters.json
 
 jobs:
   - job: validate
@@ -24,6 +25,7 @@ jobs:
           resourceGroupName: $(resourceGroup)
           location: $(location)
           csmFile: $(templatePath)
+          csmParametersFile: $(parametersPath)
           deploymentMode: Validation
 
   - job: deploy
@@ -39,3 +41,4 @@ jobs:
           resourceGroupName: $(resourceGroup)
           location: $(location)
           csmFile: $(templatePath)
+          csmParametersFile: $(parametersPath)
